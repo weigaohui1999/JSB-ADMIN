@@ -18,9 +18,11 @@ import {
 } from '@a/item'
 import { GET_LIST } from '@a/department'
 import { GET_DICT_DATA_TYPE } from '@a/dict'
+import {GET_LIST_BY_ITEM, POST_COMMOSSION_BIND, POST_COMMOSSION_UNBIND} from "@a/commossion.js";
 // import other
 import Utils from '@u/Utils'
 import config from './config'
+import dayjs from "dayjs";
 //if error; please run npm install unplugin-vue-define-options -D
 //设置vue组件名称
 defineOptions({
@@ -165,11 +167,48 @@ const dict = reactive({
     dict.methods.getDictAll(['work_object', 'item_type', 'is_charge'])
   }
 })
+const item = reactive({
+  show: false,
+  list: [],
+  id: '',
+  methods: {
+    async getListByItem(id) {
+      const res = await GET_LIST_BY_ITEM(id)
+      item.list = res.data
+    },
+    edit(id) {
+      item.id = id
+      item.methods.getListByItem(id)
+      item.show = true
+    },
+    cancal() {
+      item.show = false
+      item.list = []
+      item.id = ''
+    },
+    async unbind(commissionId) {
+      const res = await POST_COMMOSSION_UNBIND({
+        itemId: item.id,
+        commissionId: commissionId
+      })
+      if(res.code === 200) return message.success('解绑成功')
+      return message.warning(res.message)
+    },
+    async bind(commissionId) {
+       const res = await POST_COMMOSSION_BIND({
+         itemId: item.id,
+         commissionId: commissionId
+      })
+      if(res.code === 200) return message.success('绑定成功')
+      return message.warning(res.message)
+    }
+  }
+})
 
 data.created()
 dict.created()
 // my config
-const { search, columns } = config(dict)
+const { search, columns, itemColumns } = config(dict)
 </script>
 
 <template>
@@ -194,6 +233,15 @@ const { search, columns } = config(dict)
           :data-source="data.list"
         >
           <template #bodyCell="{ text, record, index, column }">
+            <template v-if="column.dataIndex === 'name'">
+              <a-button
+                  size="small"
+                  type="link"
+                  @click="item.methods.edit(record.id)"
+              >
+                {{ record.name }}
+              </a-button>
+            </template>
             <template v-if="column.dataIndex === 'operation'">
               <!-- 编辑 -->
               <a-button
@@ -352,6 +400,43 @@ const { search, columns } = config(dict)
         </a-form-item>
       </a-form>
     </a-drawer>
+    <a-modal
+      v-model:visible="item.show"
+      title="事项代办员详情"
+      :centered="true"
+      @cancel="item.methods.cancal"
+      width="480"
+    >
+      <a-table
+        size="middle"
+        :rowKey="(record) => record.id"
+        :pagination="false"
+        :columns="itemColumns"
+        :data-source="item.list"
+
+      >
+        <template #bodyCell="{ text, record, index, column }">
+          <template v-if="column.dataIndex === 'operation'">
+            <a-button
+                size="small"
+                type="link"
+                success
+                @click="item.methods.bind(record.id)"
+            >
+              绑定
+            </a-button>
+            <a-button
+                size="small"
+                type="link"
+                danger
+                @click="item.methods.unbind(record.id)"
+            >
+              解绑
+            </a-button>
+          </template>
+        </template>
+      </a-table>
+    </a-modal>
   </div>
 </template>
 

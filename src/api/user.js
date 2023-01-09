@@ -7,4 +7,6 @@ export const POST_LOGIN = (params) => {
   });
 };
 
-export const GET_
+export const GET_CURRENT = () => {
+  return http.get("/admin/current")
+}

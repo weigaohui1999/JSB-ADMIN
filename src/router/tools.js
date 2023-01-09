@@ -24,7 +24,7 @@ export const beforeCallBackasync = async (to, form, next) => {
   if (token.length && to.name == "login") return next("/base/index");
   //  动态菜单丢失,重新拉取
   if (to.name != "login" && store.state.routers.length == 0) {
-    await store.dispatch("MENU").then((res) => {
+    await store.dispatch("menu").then((res) => {
       res.forEach((item) => {
         register(item);
       });
@@ -38,6 +38,8 @@ export const beforeCallBackasync = async (to, form, next) => {
 export const afterCallBackasync = (to) => {
   if (to.name != "login") {
     store.commit("SET_BREADCRUMB", to.meta?.breadcrumb.split("-"));
+  } else {
+    next()
   }
   document.title = import.meta.env.VITE_APP_NAME + "-" + to.meta.title;
 };

@@ -8,9 +8,10 @@ import { LoadingOutlined } from '@ant-design/icons-vue';
 // import api
 import { POST_LOGIN } from "@a/user"
 // import other
-
+import { useStore } from "vuex"
 //  导入背景模块
 import * as klouds from 'klouds'
+import { GET_CURRENT } from '../../api/user.js'
 
 //if error; please run npm install unplugin-vue-define-options -D
 //设置vue组件名称
@@ -20,6 +21,7 @@ defineOptions({
 
 // vue api
 const router = useRouter()
+const store = useStore()
 // my config
 
 // refs
@@ -40,6 +42,7 @@ const form = reactive({
             state.loading = true
             const res = await POST_LOGIN(form.data)
             if (res.code == 200) {
+                store.dispatch('setUserinfo')
                 window.sessionStorage.setItem('account', res.data.account)
                 window.sessionStorage.setItem('headPicture', res.data.headPicture)
                 window.sessionStorage.setItem('name', res.data.name)

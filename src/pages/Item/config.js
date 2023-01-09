@@ -47,7 +47,7 @@ export default (dict) => {
         customRender: ({ value }) => {
           let departmentId = dict.departmentId
           for (let i = 0; i <= departmentId.length; i++) {
-            if (departmentId[i].value == value) return departmentId[i].label
+            if (departmentId[i].value === value) return departmentId[i].label
           }
         }
       },
@@ -82,6 +82,21 @@ export default (dict) => {
         dataIndex: 'operation',
         align: 'center'
       }
+    ],
+    itemColumns: [
+      { title: '姓名', dataIndex: 'name' },
+      { title: '编号', dataIndex: 'number'},
+      { title: '评分', dataIndex: 'grade', align: "center"},
+      { title: '办理数量', dataIndex: 'doThingNumber', align: "center" },
+      { title: '办理上限', dataIndex: 'businessLimit', align: "center" },
+      { title: '部门', dataIndex: 'department' },
+      { title: '手机', dataIndex: 'phone' },
+      { title: '状态', dataIndex: 'status' },
+      {
+        title: "操作",
+        dataIndex: "operation",
+        align: "center",
+      },
     ]
   }
 }

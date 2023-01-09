@@ -18,5 +18,5 @@ export const PUT_ITEM = (params) => {
 };
 
 export const GET_DETAIL = (id) => {
-  return http.get(`/item/admin/detail/${id}`);
+  return http.get(`/item/detail/${id}`);
 };

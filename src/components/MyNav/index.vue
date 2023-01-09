@@ -18,6 +18,7 @@ defineOptions({
 })
 
 // vue api
+const router = useRouter()
 
 // my config
 const IconFont = createFromIconfontCN({
@@ -28,8 +29,16 @@ const IconFont = createFromIconfontCN({
 
 const data = reactive({
     keys: '',
-    headPicture: window.sessionStorage.getItem('headPicture') || ''
+    headPicture: window.sessionStorage.getItem('headPicture') || '',
+    method: {
+      logout() {
+        window.sessionStorage.clear()
+        window.location.href = "/login";
+      }
+    }
 })
+
+
 </script>
 
 <template>
@@ -47,7 +56,18 @@ const data = reactive({
             <MyIcon :size="24">
                 <bell-outlined style="font-size: 18px;color:#1890ff" />
             </MyIcon>
-            <a-avatar :src="data.headPicture" :size="32" class="head" />
+            <a-dropdown>
+              <a class="ant-dropdown-link" @click.prevent>
+                <a-avatar :src="data.headPicture" :size="32" class="head" />
+              </a>
+              <template #overlay>
+                <a-menu>
+                  <a-menu-item>
+                    <a href="javascript:;" @click="data.method.logout()">退出登录</a>
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
         </div>
     </div>
 </template>
