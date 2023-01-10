@@ -8,6 +8,7 @@ import postCssPxToRem from "postcss-pxtorem";
 import autoprefixer from "autoprefixer";
 
 export default defineConfig({
+  base: './',
   plugins: [
     vue(),
     DefineOptions(),

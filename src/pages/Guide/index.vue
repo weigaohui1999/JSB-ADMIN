@@ -61,25 +61,51 @@ const data = reactive({
     }
 })
 
+const view = reactive({
+    activeKey: [],
+    show: false,
+    commossionModels: [],
+    guideModel: [],
+    itemModel: [],
+    id: '',
+    methods: {
+        edit(id) {
+            view.id = id
+            view.methods.getGuideView(id)
+            view.show = true
+        },
+        async getGuideView(id) {
+            const res = await GET_DETAIL(id)
+            view.commossionModels = res.data.commossionModels
+            view.guideModel = res.data.guideModel
+            view.itemModel = res.data.itemModel
+        },
+        cancal() {
+            view.commossionModels = []
+            view.guideModel = []
+            view.itemModel = []
+            view.id = ''
+            view.show = false
+        }
+    }
+})
+
 const form = reactive({
     itemId: [],
     processingTime1: [],
     processingTime2: [],
     //  新增业务模型
     add: {
-      itemId: null,
-      promiseTime: null,
-      officeAddress: null,
-      addressPhone: null,
-      approvalBasis: null,
-      guideQuestion: null,
+      itemId: '',
+      promiseTime: '',
+      officeAddress: '',
+      addressPhone: '',
+      approvalBasis: '',
+      guideQuestion: '',
       processingTime: null
     },
     //  编辑业务模型
     edit: {},
-  created() {
-
-  },
   methods: {
         //  返回对应按钮状态下的数据结构,让表单动态绑定不同数据模式
         model() {
@@ -108,13 +134,15 @@ const form = reactive({
                 form.edit = Utils.objectData(res.data.guideModel[0], form.add)
                 form.processingTime1 = res.data.guideModel[0].processingTime[0].split('-')
                 form.processingTime2 = res.data.guideModel[0].processingTime[1].split('-')
-                console.log(form.edit)
                 form.edit['id'] = id
                 state.show = true
                 state.dataType = false
             }
         },
         close() {
+            form.edit = Utils.objectData('', '')
+            form.processingTime1 = null
+            form.processingTime2 = null
             MyForm?.value.resetFields();
         },
         async onFinish(values) {
@@ -151,6 +179,15 @@ data.created()
                 <a-table size="middle" :rowKey="(record) => record.id" :pagination="false" :columns="columns"
                     :data-source="data.list">
                     <template #bodyCell="{ text, record, index, column }">
+                        <template v-if="column.dataIndex === 'itemName'">
+                            <a-button
+                                size="small"
+                                type="link"
+                                @click="view.methods.edit(record.id)"
+                            >
+                                {{ record.itemName }}
+                            </a-button>
+                        </template>
                         <template v-if="column.dataIndex === 'operation'">
                             <!-- 编辑 -->
                             <a-button type="link" shape="circle" title="编辑" @click="form.methods.edit(record.id)">
@@ -206,6 +243,49 @@ data.created()
                 </a-form-item>
             </a-form>
         </a-drawer>
+        <a-modal
+            v-model:visible="view.show"
+            title="帮办风采事项详情"
+            :centered="true"
+            @cancel="view.methods.cancal"
+            width="600px"
+        >
+            <a-collapse v-model:activeKey="view.activeKey">
+                <a-collapse-panel key="1" header="帮办人">
+                    <a-descriptions>
+                        <a-descriptions-item label="姓名">{{view.commossionModels[0].name}}</a-descriptions-item>
+                        <a-descriptions-item label="手机号码">{{view.commossionModels[0].phone}}</a-descriptions-item>
+                        <a-descriptions-item label="擅长领域">{{view.commossionModels[0].goodAt}}</a-descriptions-item>
+                        <a-descriptions-item label="办件数量">{{view.commossionModels[0].doThingNumber}}</a-descriptions-item>
+                        <a-descriptions-item label="业务上限">{{view.commossionModels[0].businessLimit}}</a-descriptions-item>
+                        <a-descriptions-item label="评分">{{view.commossionModels[0].grade}}</a-descriptions-item>
+                    </a-descriptions>
+                </a-collapse-panel>
+                <a-collapse-panel key="2" header="帮办风采">
+                    <a-descriptions>
+                        <a-descriptions-item label="事项">{{view.guideModel[0].itemId}}</a-descriptions-item>
+                        <a-descriptions-item label="承诺时间">{{view.guideModel[0].promiseTime}}</a-descriptions-item>
+                        <a-descriptions-item label="办事地址">{{view.guideModel[0].officeAddress}}</a-descriptions-item>
+                        <a-descriptions-item label="办事地址">{{view.guideModel[0].officeAddress}}</a-descriptions-item>
+                        <a-descriptions-item label="办事电话">{{view.guideModel[0].addressPhone}}</a-descriptions-item>
+                        <a-descriptions-item label="办理时间">{{view.guideModel[0].processingTime}}</a-descriptions-item>
+                        <a-descriptions-item />
+                        <a-descriptions-item label="说明">{{view.guideModel[0].approvalBasis}}</a-descriptions-item>
+                    </a-descriptions>
+                </a-collapse-panel>
+                <a-collapse-panel key="3" header="事件详情">
+                    <a-descriptions>
+                        <a-descriptions-item label="事项名称">{{view.itemModel.name}}</a-descriptions-item>
+                        <a-descriptions-item label="事项编码">{{view.itemModel.code}}</a-descriptions-item>
+                        <a-descriptions-item label="是否收费">{{view.itemModel.chargeDescription ? '是' : '否'}}</a-descriptions-item>
+                        <a-descriptions-item label="说明">{{view.itemModel.isCharge}}</a-descriptions-item>
+                        <a-descriptions-item label="办事对象">{{view.itemModel.workObject}}</a-descriptions-item>
+                        <a-descriptions-item label="办件方式">{{view.itemModel.transactType}}</a-descriptions-item>
+                        <a-descriptions-item label="描述">{{view.itemModel.description}}</a-descriptions-item>
+                    </a-descriptions>
+                </a-collapse-panel>
+            </a-collapse>
+        </a-modal>
     </div>
 </template>
 
